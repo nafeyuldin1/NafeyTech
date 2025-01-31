@@ -33,7 +33,7 @@ body.loading {
   background-color: transparent;
   backdrop-filter: blur(40px);
   margin: auto;
-  top: 40;
+  top: 40px;
   left: 0;
   right: 0;
   box-shadow: 0 0 10px #901937;
