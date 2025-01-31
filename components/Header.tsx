@@ -1,6 +1,5 @@
 import { Navlinks } from '@/data'
 import { BodyFont, HeadingFont } from '@/fonts'
-import AnimatedMenu from '@/ui/AnimatedMenu'
 import Image from 'next/image'
 import Link from 'next/link'
 import React from 'react'
@@ -14,8 +13,8 @@ const Header = () => {
 
        <div className='menubar w-auto hidden md:flex gap-6 text-black'>
          {
-          Navlinks.map((item) => (
-            <Link className={`${BodyFont} text-white uppercase text-xl tracking-[0.1rem]
+          Navlinks.map((item, index) => (
+            <Link key={index} className={`${BodyFont} text-white uppercase text-xl tracking-[0.1rem]
 `} href={item.link}>
                {item.label}
             </Link>
@@ -25,7 +24,7 @@ const Header = () => {
 
        <div className={`${BodyFont} md:flex hidden uppercase text-xl tracking-[0.1rem] text-white `}>
        <button className={`letstalkbutton  uppercase ${HeadingFont}`}>
-      Let's Talk
+         Let&#39;s Talk
   <svg fill="currentColor" viewBox="0 0 24 24" className="letstalkbuttonicon">
     <path
       clip-rule="evenodd"
