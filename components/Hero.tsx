@@ -13,29 +13,45 @@ const Hero: React.FC = () => {
     const video = videoRef.current;
     if (!video) return;
 
-    const handleLoadedMetadata = () => {
+    const handleLoadedData = () => {
       const playedBefore = localStorage.getItem('videoPlayed') === 'true';
       if (playedBefore) {
-        video.currentTime = 19; // Start at 19s if played before
+        video.currentTime = 14; // Start at 14s if played before
       }
     };
 
     const handleEnded = () => {
       localStorage.setItem('videoPlayed', 'true');
-      video.currentTime = 19; // Reset to 19s after first full play
+      video.currentTime = 14; // Reset to 14s after first full play
       video.play().catch(console.error);
     };
 
-    video.addEventListener('loadedmetadata', handleLoadedMetadata);
-    video.addEventListener('ended', handleEnded);
+    // Mobile-friendly video initialization
+    const initVideo = () => {
+      video.addEventListener('loadeddata', handleLoadedData);
+      video.addEventListener('ended', handleEnded);
 
-    // Auto-play video (muted to bypass browser restrictions)
-    video.play().catch((err) => {
-      console.error('Autoplay blocked:', err);
-    });
+      // Mobile browsers require specific handling
+      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+      if (isMobile) {
+        video.setAttribute('playsinline', 'true');
+        video.setAttribute('webkit-playsinline', 'true');
+      }
+
+      // Handle autoplay restrictions
+      const playPromise = video.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(() => {
+          // Fallback for strict autoplay policies
+          document.addEventListener('touchstart', () => video.play(), { once: true });
+        });
+      }
+    };
+
+    initVideo();
 
     return () => {
-      video.removeEventListener('loadedmetadata', handleLoadedMetadata);
+      video.removeEventListener('loadeddata', handleLoadedData);
       video.removeEventListener('ended', handleEnded);
     };
   }, []);
@@ -71,14 +87,15 @@ const Hero: React.FC = () => {
         ref={videoRef}
         playsInline
         muted
-        preload="auto"
+        preload="metadata"
         className="background-video absolute h-full w-full left-0 right-0 top-0 z-[-1] object-cover"
+        poster="/video-poster.jpg" // Add a poster frame for mobile
       >
         <source src="/bannervideo.mp4" type="video/mp4" />
         <source src="/bannervideo.webm" type="video/webm" />
       </video>
 
-      <div className="h-full hero w-full flex  items-center lg:pt-0 pt-[20vh] justify-start">
+      <div className="h-full hero w-full flex items-center lg:pt-0 pt-[20vh] justify-start">
         <div className="content w-[90%] lg:w-[90%] lg:flex-row flex-col flex ld:gap-0 gap-8 lg:items-center justify-between lg:px-0 px-[13px] text-start mx-auto">
           <div className='min-w-fit'>
             <div className='services flex flex-wrap items-center gap-2 lg:gap-4 mb-2 justify-start'>
