@@ -206,6 +206,7 @@ body.loading {
   content: "";
   inset: 0;
   position: absolute;
+  border-radius: 2px;
   transform: scaleX(0);
   transform-origin: right;
   transition: transform 0.5s ease-in-out;
@@ -216,7 +217,7 @@ body.loading {
   transform-origin: left;
 }
 
-@media screen and (max-width: 768px){
+@media screen and (max-width: 1023px){
   .project_slider .animate1 {
     animation: horTicker 20s linear infinite forwards;
   }
@@ -250,7 +251,7 @@ body.loading {
   }
   
 }
-@media screen and (min-width: 769px){
+@media screen and (min-width: 1024px){
   .project_slider .animate1 {
     animation: horTicker 20s linear infinite forwards;
   }
