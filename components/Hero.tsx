@@ -5,9 +5,14 @@ import { BodyFont, HeadingFont } from '@/fonts';
 import Link from 'next/link';
 import { projectGallery, ServicesTags } from '@/data';
 import Image from 'next/image';
+import gsap from 'gsap';
 
 const Hero: React.FC = () => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  const headingRef = useRef<HTMLHeadingElement | null>(null);
+  const paragraphRef = useRef<HTMLParagraphElement | null>(null);
+  const buttonRef = useRef<HTMLAnchorElement | null>(null);
+  const servicesTagsRefs = useRef<(HTMLHeadingElement | null)[]>([]); // Refs for services tags
 
   useEffect(() => {
     const video = videoRef.current;
@@ -26,24 +31,23 @@ const Hero: React.FC = () => {
       video.play().catch(console.error);
     };
 
-    // Mobile-friendly video initialization
+    // Mobile-friendly video setup
     const initVideo = () => {
       video.addEventListener('loadeddata', handleLoadedData);
       video.addEventListener('ended', handleEnded);
 
-      // Mobile browsers require specific handling
-      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-      if (isMobile) {
-        video.setAttribute('playsinline', 'true');
-        video.setAttribute('webkit-playsinline', 'true');
-      }
+      // iOS specific attributes
+      video.setAttribute('playsinline', 'true');
+      video.setAttribute('webkit-playsinline', 'true');
 
       // Handle autoplay restrictions
       const playPromise = video.play();
       if (playPromise !== undefined) {
         playPromise.catch(() => {
-          // Fallback for strict autoplay policies
-          document.addEventListener('touchstart', () => video.play(), { once: true });
+          // Fallback for strict mobile policies
+          document.addEventListener('touchstart', () => {
+            video.play();
+          }, { once: true });
         });
       }
     };
@@ -56,10 +60,85 @@ const Hero: React.FC = () => {
     };
   }, []);
 
+  // GSAP Animations
+  useEffect(() => {
+    if (headingRef.current && paragraphRef.current && buttonRef.current) {
+      // Reset initial positions
+      gsap.set([headingRef.current, paragraphRef.current, buttonRef.current], {
+        opacity: 0,
+        y: 50,
+      });
+
+      // Animate heading
+      gsap.to(headingRef.current, {
+        opacity: 1,
+        y: 0,
+        duration: 2,
+        ease: 'power3.out',
+        delay: 0.5,
+      });
+
+      // Animate paragraph
+      gsap.to(paragraphRef.current, {
+        opacity: 1,
+        y: 0,
+        duration: 1.5,
+        ease: 'power3.out',
+        delay: 1,
+      });
+
+      // Animate button
+      gsap.to(buttonRef.current, {
+        opacity: 1,
+        y: 0,
+        duration: 1.5,
+        ease: 'power3.out',
+        delay: 1.5,
+      });
+
+      // Add a subtle scale animation to the button on hover
+      buttonRef.current.addEventListener('mouseenter', () => {
+        gsap.to(buttonRef.current, {
+          scale: 1.1,
+          duration: 1,
+          ease: 'power2.out',
+        });
+      });
+
+      buttonRef.current.addEventListener('mouseleave', () => {
+        gsap.to(buttonRef.current, {
+          scale: 1,
+          duration: 1,
+          ease: 'power2.out',
+        });
+      });
+    }
+
+    // Animate services tags with a stagger effect
+    if (servicesTagsRefs.current.length > 0) {
+      gsap.set(servicesTagsRefs.current, { opacity: 0, y: 20 });
+
+      gsap.to(servicesTagsRefs.current, {
+        opacity: 1,
+        y: 0,
+        duration: 1,
+        stagger: 0.2, // Delay between each tag animation
+        ease: 'power3.out',
+        delay: 2, // Start after other animations
+      });
+    }
+  }, []);
+
   // Memoize static content
   const servicesTags = useMemo(() => (
-    ServicesTags.map((item) => (
-      <h3 key={item.id} className='text-white text-lg px-2 bg-[#901937] rounded-sm'>
+    ServicesTags.map((item, index) => (
+      <h3
+        key={item.id}
+        ref={(el) => {
+          if (el) servicesTagsRefs.current[index] = el; // Assign ref to each tag
+        }}
+        className='text-white text-lg px-2 bg-[#901937] rounded-sm'
+      >
         {item.label}
       </h3>
     ))
@@ -82,17 +161,19 @@ const Hero: React.FC = () => {
   ), []);
 
   return (
-    <div className="h-auto lg:h-[100vh] hero w-full">
+    <div className="h-auto lg:h-[100vh] hero w-full relative overflow-hidden">
+      {/* Video element with mobile-optimized attributes */}
       <video
         ref={videoRef}
         playsInline
         muted
         preload="metadata"
         className="background-video absolute h-full w-full left-0 right-0 top-0 z-[-1] object-cover"
-        poster="/video-poster.jpg" // Add a poster frame for mobile
+        poster="/video-poster.jpg" // Add optimized poster image
       >
         <source src="/bannervideo.mp4" type="video/mp4" />
         <source src="/bannervideo.webm" type="video/webm" />
+        Your browser does not support the video tag.
       </video>
 
       <div className="h-full hero w-full flex items-center lg:pt-0 pt-[20vh] justify-start">
@@ -101,13 +182,24 @@ const Hero: React.FC = () => {
             <div className='services flex flex-wrap items-center gap-2 lg:gap-4 mb-2 justify-start'>
               {servicesTags}
             </div>
-            <h1 className={`${HeadingFont} text-5xl md:text-7xl max-w-[800px] font-extrabold text-white`}>
+            <h1
+              ref={headingRef}
+              className={`${HeadingFont} text-5xl md:text-7xl max-w-[800px] font-extrabold text-white`}
+            >
               Design, Develop, Deploy, Dominate Digitally
             </h1>
-            <p className={`${BodyFont} text-xl md:text-2xl text-white mt-3 lg:mt-6 max-w-[800px] mb-8`}>
+            <p
+              ref={paragraphRef}
+              className={`${BodyFont} text-xl md:text-2xl text-white mt-3 lg:mt-6 max-w-[800px] mb-8`}
+            >
               We transform visionary ideas into powerful digital experiences with innovation, precision, and expertise.
             </p>
-            <Link href="/casestudies" className={`${BodyFont} casestudiesButton tracking-[0.1rem] font-extrabold`}>
+            <Link
+              ref={buttonRef}
+              href="/casestudies"
+              className={`${BodyFont} casestudiesButton tracking-[0.1rem] font-extrabold`}
+              prefetch={false}
+            >
               <span>Case Studies</span>
             </Link>
           </div>

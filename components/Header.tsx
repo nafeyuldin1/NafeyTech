@@ -2,9 +2,42 @@ import { Navlinks } from '@/data'
 import { BodyFont, HeadingFont } from '@/fonts'
 import Image from 'next/image'
 import Link from 'next/link'
-import React from 'react'
+import React, {useEffect} from 'react'
+import SvgCheckbox from './SvgCheckbox'
 
 const Header = () => {
+  useEffect(() => {
+    // Get the checkbox input element
+    const toggle = document.querySelector('.toggle input') as HTMLInputElement;
+    const menubar = document.querySelector('.menubar') as HTMLElement;
+
+    // Set interval to toggle the checkbox every 3 seconds
+    const animate = setInterval(() => {
+      if (toggle) {
+        toggle.checked = !toggle.checked;
+      }
+    }, 3000);
+
+    // Event listener to stop the animation when the body is clicked
+    const stopAnimation = () => {
+      clearInterval(animate);
+    };
+
+    // Adding event listener to stop animation when clicking on menubar
+    if (menubar) {
+      menubar.addEventListener('click', stopAnimation);
+    }
+
+    // Clean up event listener on component unmount
+    return () => {
+      if (menubar) {
+        menubar.removeEventListener('click', stopAnimation);
+      }
+      clearInterval(animate); // Make sure to clear the interval on unmount
+    };
+  }, []); // Empty dependency array to run the effect once when the component mounts
+
+
   return (
     <div className='flex fixed    header items-center justify-between   w-[90%]   md:max-w-full '>
        <div className='logo'>
@@ -34,6 +67,28 @@ const Header = () => {
   </svg>
 </button>
        </div>
+       <label className="toggle absolute right-4">
+      <input  type="checkbox" />
+      <div>
+        <div>
+          <span></span>
+          <span></span>
+        </div>
+        <svg>
+          <use xlinkHref="#path" />
+        </svg>
+        <svg>
+          <use xlinkHref="#path" />
+        </svg>
+      </div>
+    </label>
+        
+<svg xmlns="http://www.w3.org/2000/svg" style={{display: "none"}}>
+    <symbol xmlns="http://www.w3.org/2000/svg" viewBox="0 0 44 44" id="path">
+        <path d="M22,22 L2,22 C2,11 11,2 22,2 C33,2 42,11 42,22"></path>
+    </symbol>
+</svg>
+        
     </div>
   )
 }
